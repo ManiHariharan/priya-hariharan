@@ -28,3 +28,13 @@
   color: white;
   cursor: pointer;
 }
+
+table, th, td {
+  border-collapse:collapse;
+  border:1px solid #0455a3;
+  padding: 5px;
+}
+
+.income-model-td {
+  text-align: right;
+}
