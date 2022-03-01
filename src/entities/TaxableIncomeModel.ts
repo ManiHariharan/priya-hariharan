@@ -5,12 +5,13 @@ export class TaxableIncomeModel {
     epf = 0;
     gratuity = 0;
     insurance = 0;
-
+    totalCTC = 0;
 
     actualHra = 0;
     fiftyPercentBasic = 0;
     excessRentPaid = 0;
     hraDeduction = 0;
+    standardDeduction = 0;
 
     required80C = 0;
 

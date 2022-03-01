@@ -35,6 +35,27 @@ table, th, td {
   padding: 5px;
 }
 
+table {
+  border:2px solid #0455a3;
+}
+
+.h2-headed-td {
+  border-top: 2px solid #0455a3;
+}
+
 .income-model-td {
   text-align: right;
+  padding: 0px 15px;
+}
+
+.h2-bgcolor-td {
+  background-color: #0455a3;
+  color: white;
+}
+
+#h2-total-ctc-inp {
+  background-color: #0455a3;
+  color: white;
+  border: 1px solid #0455a3;
+  padding: 8px;
 }
