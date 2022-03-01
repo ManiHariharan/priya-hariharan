@@ -259,7 +259,7 @@ function Home() {
             </tr>
 
             <tr>
-              <td colSpan="3" className="h2-headed-td"><b>Taxable Income</b> (Old Tax Regime)</td>
+              <td colSpan="3" className="h2-headed-td"><b>Taxable Income</b></td>
             </tr>
             <tr>
               <td>D1</td>
@@ -278,7 +278,7 @@ function Home() {
             </tr>
 
             <tr>
-              <td colSpan="3" className="h2-headed-td"><b>Tax Slabs</b></td>
+              <td colSpan="3" className="h2-headed-td"><b>Tax Slabs</b> (Old Tax Regime)</td>
             </tr>
             <tr>
               <td>E1</td>
