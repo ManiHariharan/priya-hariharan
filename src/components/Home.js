@@ -10,6 +10,7 @@ import "../App.css"
 
 const RENT_PAID = 99600; //99,600
 const STANDARD_DEDUCTIONS = 50000; //50,000
+const MAX_80C_DEDUCTIONS = 150000; //1,50,000
 
 const SLAB_A_START = 250000; //2,50,000
 const SLAB_B_START = 500000; //5,00,000
@@ -63,6 +64,7 @@ function Home() {
     const epf = getUserInput('h2-epf');
     const gratuity = getUserInput('h2-gratuity');
     const insurance = getUserInput('h2-insurance');
+    const userExemption = getUserInput('h2-exemption');
     
     if (baseSalary <= 0) {
       alert('Enter \'Basic Salary\'');
@@ -85,7 +87,6 @@ function Home() {
     taxableIncomeModel.gratuity = getReadableValue(gratuity);
     taxableIncomeModel.insurance = getReadableValue(insurance);
     taxableIncomeModel.totalCTC = getReadableValue(totalCTCInput);
-    
 
     const hraA = hra;
     const hraB = (baseSalary/2);
@@ -100,11 +101,15 @@ function Home() {
 
     taxableIncomeModel.standardDeduction = getReadableValue(STANDARD_DEDUCTIONS);
 
-    const optional80C = (150000-epf);
+    const optional80C = (MAX_80C_DEDUCTIONS - epf);
+    const allowedExemption = (userExemption + epf > MAX_80C_DEDUCTIONS) ? MAX_80C_DEDUCTIONS - epf : userExemption;
     taxableIncomeModel.required80C = getReadableValue(optional80C);
+    taxableIncomeModel.userDefinedExemption = getReadableValue(userExemption);
+    taxableIncomeModel.allowedExemption = getReadableValue(allowedExemption);
 
     const totalIncomeCTC = baseSalary + hra + otherAllowance;
-    const totalDeductions = epf + hraDeduction + optional80C + STANDARD_DEDUCTIONS;
+    // const totalDeductions = epf + hraDeduction + allowedExemption + STANDARD_DEDUCTIONS;
+    const totalDeductions = hraDeduction + allowedExemption + STANDARD_DEDUCTIONS;
     const totalTaxableIncome = totalIncomeCTC - totalDeductions;
     taxableIncomeModel.incomeCTC = getReadableValue(totalIncomeCTC);
     taxableIncomeModel.totalDeductions = getReadableValue(totalDeductions);
@@ -146,9 +151,13 @@ function Home() {
   }
 
   function getHraDeduction(hraA, hraB, hraC) {
-    if ((hraA === 0) && (hraC === 0)) {
-      return hraB;
+    if (hraC === 0) {
+      return 0;
     }
+
+    // if ((hraA === 0) && (hraC === 0)) {
+    //   return hraB;
+    // }
 
     if (hraA === 0) {
       if (hraB < hraC) {
@@ -158,13 +167,13 @@ function Home() {
       }
     }
 
-    if (hraC === 0) {
-      if (hraA < hraB) {
-        return hraA;
-      } else {
-        return hraB;
-      }
-    }
+    // if (hraC === 0) {
+    //   if (hraA < hraB) {
+    //     return hraA;
+    //   } else {
+    //     return hraB;
+    //   }
+    // }
 
     var minVal = hraA;
     if (hraB < minVal) {
@@ -225,7 +234,7 @@ function Home() {
             </tr>
 
             <tr>
-              <td colSpan="3" className="h2-headed-td"><b>Deductions</b></td>
+              <td colSpan="3" className="h2-headed-td"><b>HRA Deductions</b></td>
             </tr>
             <tr>
               <td>B1</td>
@@ -243,17 +252,30 @@ function Home() {
               <td className="income-model-td">{getTaxableIncomeModel.excessRentPaid}</td>
             </tr>
             <tr>
-              <td>C1</td>
+              <td>B4</td>
               <td>HRA Deduction (Minimum of B1, B2, B3)</td>
               <td className="income-model-td">{getTaxableIncomeModel.hraDeduction}</td>
             </tr>
             <tr>
-              <td>C2</td>
-              <td>Loan Interests / PPF / Other Savings (1,50,000 - EPF)</td>
+              <td colSpan="3" className="h2-headed-td"><b>Other Deductions</b></td>
+            </tr>
+            <tr>
+              <td>C1</td>
+              <td>Allowed Exemptions (Loan Interests / PPF / Other Savings) + EPF</td>
               <td className="income-model-td">{getTaxableIncomeModel.required80C}</td>
             </tr>
             <tr>
+              <td>C2</td>
+              <td>User Defined Exemptions</td>
+              <td className="income-model-td">{getTaxableIncomeModel.userDefinedExemption}</td>
+            </tr>
+            <tr>
               <td>C3</td>
+              <td>Eligible Exemptions (MAX : 1,50,000 - A4)</td>
+              <td className="income-model-td">{getTaxableIncomeModel.allowedExemption}</td>
+            </tr>
+            <tr>
+              <td>C4</td>
               <td>Default Standard Deductions</td>
               <td className="income-model-td">{getTaxableIncomeModel.standardDeduction}</td>
             </tr>
@@ -268,7 +290,7 @@ function Home() {
             </tr>
             <tr>
               <td>D2</td>
-              <td>Total Deductions (A4 + C1 + C2 + C3)</td>
+              <td>Total Deductions (A4 + B4 + C3 + C4)</td>
               <td className="income-model-td">{getTaxableIncomeModel.totalDeductions}</td>
             </tr>
             <tr>
@@ -355,6 +377,8 @@ function Home() {
             <NumberFormat id="h2-total-ctc-inp" value={0} disabled
                 thousandSeparator={true} thousandsGroupStyle='lakh'/>
           </div>
+
+          <H2CustomInput name="Total Exemption (PPF, Insurance,..)" id="h2-exemption" stateKey="h2Exemption"/>
         </div>
   
         <div className="h2-input-div">

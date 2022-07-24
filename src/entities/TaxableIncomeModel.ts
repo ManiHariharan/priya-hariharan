@@ -14,6 +14,8 @@ export class TaxableIncomeModel {
     standardDeduction = 0;
 
     required80C = 0;
+    userDefinedExemption = 0;
+    allowedExemption = 0;
 
     incomeCTC = 0;
     totalDeductions = 0;
