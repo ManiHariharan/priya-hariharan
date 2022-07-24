@@ -20,8 +20,34 @@ const SLAB_A_TAX = 0.05; //5%
 const SLAB_B_TAX = 0.20; //20%
 const SLAB_C_TAX = 0.30; //30%
 
+const KEY_LOCAL_STORAGE = 'h2-take-home-input';
+
 function getUserInput(elemId) {
   return Number(document.getElementById(elemId).value.split(',').join(''));
+}
+
+function setUserInput(elemId, elemValue) {
+  var element = document.getElementById(elemId);
+  if (element) {
+    element.value = elemValue;
+  } else {
+    console.error('No element found for ' + elemId);
+  }
+}
+
+const delay = ms => new Promise(
+  resolve => setTimeout(resolve, ms)
+);
+
+function updateTotalCTC() {
+  const baseSalary = getUserInput('h2-base-salary');
+  const hra = getUserInput('h2-hra-allowance');
+  const otherAllowance = getUserInput('h2-other-allowance');
+  const epf = getUserInput('h2-epf');
+  const gratuity = getUserInput('h2-gratuity');
+  const insurance = getUserInput('h2-insurance');
+  const totalCTCInput = baseSalary + hra + otherAllowance + epf + gratuity + insurance;
+  document.getElementById('h2-total-ctc-inp').value = totalCTCInput;
 }
 
 const H2CustomInput = (props) => {
@@ -32,19 +58,23 @@ const H2CustomInput = (props) => {
     <div className="h2-input-div">
       <label className="h2-input-lbl">{inputKey}</label>
       <NumberFormat id={inputId} value={0}
-          onValueChange={() => {
-            const baseSalary = getUserInput('h2-base-salary');
-            const hra = getUserInput('h2-hra-allowance');
-            const otherAllowance = getUserInput('h2-other-allowance');
-            const epf = getUserInput('h2-epf');
-            const gratuity = getUserInput('h2-gratuity');
-            const insurance = getUserInput('h2-insurance');
-            const totalCTCInput = baseSalary + hra + otherAllowance + epf + gratuity + insurance;
-            document.getElementById('h2-total-ctc-inp').value = totalCTCInput;
-          }}
+          onValueChange={() => updateTotalCTC()}
           thousandSeparator={true} thousandsGroupStyle='lakh'/>
     </div>
   );
+}
+
+function loadLastInput(h2IncomeModel) {
+  setUserInput('h2-base-salary', h2IncomeModel.baseSalary);
+  setUserInput('h2-hra-allowance', h2IncomeModel.hra);
+  setUserInput('h2-other-allowance', h2IncomeModel.otherAllowance);
+  setUserInput('h2-epf', h2IncomeModel.epf);
+  setUserInput('h2-gratuity', h2IncomeModel.gratuity);
+  setUserInput('h2-insurance', h2IncomeModel.insurance);
+
+  setUserInput('h2-exemption', h2IncomeModel.userDefinedExemption);
+
+  updateTotalCTC();
 }
 
 function Home() {
@@ -52,6 +82,28 @@ function Home() {
   const [isCalculatingTax, setCalculatingTax] = useState(false);
 
   const [getTaxableIncomeModel, setTaxableIncomeModel] = useState(new TaxableIncomeModel());
+
+  function loadLocalStorage() {
+    const existLocalStorage = localStorage.getItem(KEY_LOCAL_STORAGE);
+    if (existLocalStorage) {
+      const localStorageJson = JSON.parse(existLocalStorage);
+      loadLastInput(localStorageJson);
+      alert('The exisitng user input values from localStorage loaded successfully');
+    } else {
+      alert('No localStorage available');
+    }
+  }
+
+  function saveLocalStorage() {
+    localStorage.setItem(KEY_LOCAL_STORAGE, JSON.stringify(getTaxableIncomeModel));
+    alert('The current user input values saved in localStorage');
+  }
+
+  const editTaxIput = async event => {
+    calculateNewTax();
+    await delay(1000);
+    loadLastInput(getTaxableIncomeModel);
+  };
 
   function calculateNewTax() {
     setTaxCalculated(false);
@@ -347,7 +399,9 @@ function Home() {
             </tr>
           </tbody>
         </table>
-        <div className="h2-input-div">
+        <div className="h2-button-div">
+            <button className="h2-tax-btn" onClick={editTaxIput}>Edit Input</button>
+            <button className="h2-tax-btn" onClick={saveLocalStorage}>Save localStorage</button>
             <button className="h2-tax-btn" onClick={calculateNewTax}>Calculate New</button>
         </div>
       </div>
@@ -380,8 +434,9 @@ function Home() {
           <H2CustomInput name="Total Exemption (PPF, Insurance,..)" id="h2-exemption" stateKey="h2Exemption"/>
         </div>
   
-        <div className="h2-input-div">
+        <div className="h2-button-div">
             <button className="h2-tax-btn" onClick={calculateTax}>Calculate</button>
+            <button className="h2-tax-btn" onClick={loadLocalStorage}>Load Last Input</button>
         </div>
       </div>
     );
