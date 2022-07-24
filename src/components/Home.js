@@ -107,8 +107,8 @@ function Home() {
     taxableIncomeModel.userDefinedExemption = getReadableValue(userExemption);
     taxableIncomeModel.allowedExemption = getReadableValue(allowedExemption);
 
-    const totalIncomeCTC = baseSalary + hra + otherAllowance + epf;
-    const totalDeductions = epf + hraDeduction + allowedExemption + STANDARD_DEDUCTIONS;
+    const totalIncomeCTC = baseSalary + hra + otherAllowance;
+    const totalDeductions = hraDeduction + allowedExemption + STANDARD_DEDUCTIONS;
     const totalTaxableIncome = totalIncomeCTC - totalDeductions;
     taxableIncomeModel.incomeCTC = getReadableValue(totalIncomeCTC);
     taxableIncomeModel.totalDeductions = getReadableValue(totalDeductions);
@@ -265,7 +265,7 @@ function Home() {
             </tr>
             <tr>
               <td>C2</td>
-              <td>Allowed Exemptions (1,50,000 - A4)</td>
+              <td>Allowed Extra Exemptions (1,50,000 - A4)</td>
               <td className="income-model-td">{getTaxableIncomeModel.required80C}</td>
             </tr>
             <tr>
@@ -284,12 +284,12 @@ function Home() {
             </tr>
             <tr>
               <td>D1</td>
-              <td>Income CTC (A1 + A2 + A3 + A4)</td>
+              <td>Income CTC (A1 + A2 + A3)</td>
               <td className="income-model-td">{getTaxableIncomeModel.incomeCTC}</td>
             </tr>
             <tr>
               <td>D2</td>
-              <td>Total Deductions (A4 + B4 + C3 + C4)</td>
+              <td>Total Deductions (B4 + C3 + C4)</td>
               <td className="income-model-td">{getTaxableIncomeModel.totalDeductions}</td>
             </tr>
             <tr>
