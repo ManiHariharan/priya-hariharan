@@ -11,6 +11,7 @@ function App() {
         <div>
           <div className="header">
             <NavLink exact activeClassName="active" to="/">Take Home Calculator</NavLink>
+            <span>2023 Tax Structure</span>
           </div>
           <div className="content">
             <Switch>

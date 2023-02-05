@@ -9,11 +9,9 @@
   color: white;
 }
 
-.h2-input-div {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  margin: 20px 5px;
+.h2-number-input {
+  border: 1px solid #0455a3;
+  padding: 8px;
 }
 
 .h2-tax-btn{
@@ -60,6 +58,4 @@ table {
 #h2-total-ctc-inp {
   background-color: #0455a3;
   color: white;
-  border: 1px solid #0455a3;
-  padding: 8px;
 }

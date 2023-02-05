@@ -8,9 +8,13 @@ import NumberFormat from 'react-number-format';
 
 import "../App.css"
 
-const RENT_PAID = 99600; //99,600
+// const RENT_PAID = 99600; //99,600
 const STANDARD_DEDUCTIONS = 50000; //50,000
-const MAX_80C_DEDUCTIONS = 150000; //1,50,000
+const MAX_DEDUCTIONS_80C = 150000; //1,50,000
+
+const MAX_DEDUCTIONS_80EEB_EV  = 150000; //1.5 L - Interest Paid on Electric Vehicle Loan
+const MAX_DEDUCTIONS_80CCD_NPS =  50000; //50 K - National Pension Scheme
+const MAX_DEDUCTIONS_HOME_LOAN = 200000; //2.0 L
 
 const SLAB_A_START = 250000; //2,50,000
 const SLAB_B_START = 500000; //5,00,000
@@ -19,6 +23,18 @@ const SLAB_C_START = 1000000; //10,00,000
 const SLAB_A_TAX = 0.05; //5%
 const SLAB_B_TAX = 0.20; //20%
 const SLAB_C_TAX = 0.30; //30%
+
+const NEW_SLAB_A_START =  300000; // 3 L
+const NEW_SLAB_B_START =  600000; // 6 L
+const NEW_SLAB_C_START =  900000; // 9 L
+const NEW_SLAB_D_START = 1200000; //12 L
+const NEW_SLAB_E_START = 1500000; //15 L
+
+const NEW_SLAB_A_TAX = 0.05; // 5%
+const NEW_SLAB_B_TAX = 0.10; //10%
+const NEW_SLAB_C_TAX = 0.15; //15%
+const NEW_SLAB_D_TAX = 0.20; //20%
+const NEW_SLAB_E_TAX = 0.30; //30%
 
 const KEY_LOCAL_STORAGE = 'h2-take-home-input';
 
@@ -50,17 +66,38 @@ function updateTotalCTC() {
   document.getElementById('h2-total-ctc-inp').value = totalCTCInput;
 }
 
-const H2CustomInput = (props) => {
+const H2SalaryInput = (props) => {
   const inputKey = props.name;
   const inputId = props.id;
 
   return (
-    <div className="h2-input-div">
-      <label className="h2-input-lbl">{inputKey}</label>
-      <NumberFormat id={inputId} value={0}
+    <tr>
+      <td>
+        <label className="h2-input-lbl">{inputKey}</label>
+      </td>
+      <td>
+        <NumberFormat id={inputId} className="h2-number-input" value={0}
           onValueChange={() => updateTotalCTC()}
           thousandSeparator={true} thousandsGroupStyle='lakh'/>
-    </div>
+      </td>
+    </tr>
+  );
+}
+
+const H2ExemptionInput = (props) => {
+  const inputKey = props.name;
+  const inputId = props.id;
+
+  return (
+    <tr>
+      <td>
+        <label className="h2-input-lbl">{inputKey}</label>
+      </td>
+      <td>
+        <NumberFormat id={inputId} className="h2-number-input" value={0} 
+            thousandSeparator={true} thousandsGroupStyle='lakh'/>
+      </td>
+    </tr>
   );
 }
 
@@ -72,7 +109,12 @@ function loadLastInput(h2IncomeModel) {
   setUserInput('h2-gratuity', h2IncomeModel.gratuity);
   setUserInput('h2-insurance', h2IncomeModel.insurance);
 
-  setUserInput('h2-exemption', h2IncomeModel.userDefinedExemption);
+  setUserInput('h2-house-rent-paid', h2IncomeModel.houseRendPaid);
+  setUserInput('h2-loan-interest-education', h2IncomeModel.exemptionInterestEducation);
+  setUserInput('h2-loan-interest-home', h2IncomeModel.exemptionInterestHome);
+  setUserInput('h2-loan-interest-vehicle', h2IncomeModel.exemptionInterestEV);
+  setUserInput('h2-national-pension-scheme', h2IncomeModel.exemptionNPS);
+  setUserInput('h2-exemption-80c', h2IncomeModel.exemption80C);
 
   updateTotalCTC();
 }
@@ -110,13 +152,13 @@ function Home() {
   }
 
   function calculateTax() {
+    // CTC Inputs
     const baseSalary = getUserInput('h2-base-salary');
     const hra = getUserInput('h2-hra-allowance');
     const otherAllowance = getUserInput('h2-other-allowance');
     const epf = getUserInput('h2-epf');
     const gratuity = getUserInput('h2-gratuity');
     const insurance = getUserInput('h2-insurance');
-    const userExemption = getUserInput('h2-exemption');
     
     if (baseSalary <= 0) {
       alert('Enter \'Basic Salary\'');
@@ -131,6 +173,23 @@ function Home() {
 
     setCalculatingTax(true);
 
+    // Exemption Inputs
+    const houseRendPaid = getUserInput('h2-house-rent-paid');
+
+    const exemptionInterestEducation = getUserInput('h2-loan-interest-education');
+
+    const homeLoan = getUserInput('h2-loan-interest-home');
+    const exemptionInterestHome = (homeLoan >= MAX_DEDUCTIONS_HOME_LOAN) ? MAX_DEDUCTIONS_HOME_LOAN : homeLoan;
+
+    const ev = getUserInput('h2-loan-interest-vehicle');
+    const exemptionInterestEV = (ev >= MAX_DEDUCTIONS_80EEB_EV) ? MAX_DEDUCTIONS_80EEB_EV : ev;
+
+    const nps = getUserInput('h2-national-pension-scheme');
+    const exemptionNPS = (nps >= MAX_DEDUCTIONS_80CCD_NPS) ? MAX_DEDUCTIONS_80CCD_NPS : nps;
+
+    const exemptionInput = getUserInput('h2-exemption-80c');
+    const exemption80C = (exemptionInput >= MAX_DEDUCTIONS_80C) ? MAX_DEDUCTIONS_80C : exemptionInput;
+
     var taxableIncomeModel = new TaxableIncomeModel();
     taxableIncomeModel.baseSalary = getReadableValue(baseSalary);
     taxableIncomeModel.hra = getReadableValue(hra);
@@ -140,10 +199,17 @@ function Home() {
     taxableIncomeModel.insurance = getReadableValue(insurance);
     taxableIncomeModel.totalCTC = getReadableValue(totalCTCInput);
 
+    taxableIncomeModel.houseRendPaid = getReadableValue(houseRendPaid);
+    taxableIncomeModel.exemptionInterestEducation = getReadableValue(exemptionInterestEducation);
+    taxableIncomeModel.exemptionInterestHome = getReadableValue(exemptionInterestHome);
+    taxableIncomeModel.exemptionInterestEV = getReadableValue(exemptionInterestEV);
+    taxableIncomeModel.exemptionNPS = getReadableValue(exemptionNPS);
+    taxableIncomeModel.exemption80C = getReadableValue(exemption80C);
+
     const hraA = hra;
-    const hraB = (baseSalary/2);
+    const hraB = (baseSalary * 0.4);
     const tenPercentBasic = (baseSalary * 0.1);
-    const hraC = (RENT_PAID > tenPercentBasic) ? (RENT_PAID - tenPercentBasic) : 0;
+    const hraC = (houseRendPaid > tenPercentBasic) ? (houseRendPaid - tenPercentBasic) : 0;
     const hraDeduction = getHraDeduction(hraA, hraB, hraC);
 
     taxableIncomeModel.actualHra = getReadableValue(hraA);
@@ -153,15 +219,12 @@ function Home() {
 
     taxableIncomeModel.standardDeduction = getReadableValue(STANDARD_DEDUCTIONS);
 
-    const optional80C = (MAX_80C_DEDUCTIONS - epf);
-    const allowedExemption = (userExemption + epf > MAX_80C_DEDUCTIONS) ? MAX_80C_DEDUCTIONS - epf : userExemption;
-    taxableIncomeModel.required80C = getReadableValue(optional80C);
-    taxableIncomeModel.userDefinedExemption = getReadableValue(userExemption);
-    taxableIncomeModel.allowedExemption = getReadableValue(allowedExemption);
+    const totalExemption = exemption80C + exemptionNPS + exemptionInterestHome + exemptionInterestEducation + exemptionInterestEV;
+    taxableIncomeModel.totalExemption = getReadableValue(totalExemption);
 
     const totalIncomeCTC = baseSalary + hra + otherAllowance;
-    const totalDeductions = hraDeduction + allowedExemption + STANDARD_DEDUCTIONS;
-    const totalTaxableIncome = totalIncomeCTC - totalDeductions;
+    const totalDeductions = hraDeduction + totalExemption + STANDARD_DEDUCTIONS;
+    const totalTaxableIncome = (totalIncomeCTC > totalDeductions) ? (totalIncomeCTC - totalDeductions) : 0;
     taxableIncomeModel.incomeCTC = getReadableValue(totalIncomeCTC);
     taxableIncomeModel.totalDeductions = getReadableValue(totalDeductions);
     taxableIncomeModel.taxableIncome = getReadableValue(totalTaxableIncome);
@@ -191,9 +254,51 @@ function Home() {
     taxableIncomeModel.taxSlabCess = getReadableValue(slabCess);
     taxableIncomeModel.taxSlabToBePaid = getReadableValue(slabTaxToBePaid);
 
+    var newSlabA = 0;
+    var newSlabB = 0;
+    var newSlabC = 0;
+    var newSlabD = 0;
+    var newSlabE = 0;
+    console.log('totalIncomeCTC = ' + totalIncomeCTC);
+    if (totalIncomeCTC > NEW_SLAB_A_START) {
+      if (totalIncomeCTC < NEW_SLAB_B_START) {
+        newSlabA = (totalIncomeCTC - NEW_SLAB_A_START) * NEW_SLAB_A_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_C_START) {
+        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
+        newSlabB = (totalIncomeCTC - NEW_SLAB_B_START) * NEW_SLAB_B_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_D_START) {
+        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
+        newSlabB = NEW_SLAB_B_START * NEW_SLAB_B_TAX;
+        newSlabC = (totalIncomeCTC - NEW_SLAB_C_START) * NEW_SLAB_C_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_E_START) {
+        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
+        newSlabB = NEW_SLAB_B_START * NEW_SLAB_B_TAX;
+        newSlabC = NEW_SLAB_C_START * NEW_SLAB_C_TAX;
+        newSlabD = (totalIncomeCTC - NEW_SLAB_D_START) * NEW_SLAB_D_TAX;
+      } else {
+        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
+        newSlabB = NEW_SLAB_B_START * NEW_SLAB_B_TAX;
+        newSlabC = NEW_SLAB_C_START * NEW_SLAB_C_TAX;
+        newSlabD = NEW_SLAB_D_START * NEW_SLAB_D_TAX;
+        newSlabE = (totalIncomeCTC - NEW_SLAB_E_START) * NEW_SLAB_E_TAX;
+      }
+    }
+    const newSlabTotal = newSlabA + newSlabB + newSlabC + newSlabD + newSlabE;
+
+    taxableIncomeModel.newTaxSlabA = getReadableValue(newSlabA);
+    taxableIncomeModel.newTaxSlabB = getReadableValue(newSlabB);
+    taxableIncomeModel.newTaxSlabC = getReadableValue(newSlabC);
+    taxableIncomeModel.newTaxSlabD = getReadableValue(newSlabD);
+    taxableIncomeModel.newTaxSlabE = getReadableValue(newSlabE);
+    taxableIncomeModel.newTaxSlabTotal = getReadableValue(newSlabTotal);
+
     const takeHome = (totalIncomeCTC - slabTaxToBePaid);
     taxableIncomeModel.takeHomeYearly = getReadableValue(takeHome);
     taxableIncomeModel.takeHomeMonthly = getReadableValue(takeHome / 12);
+
+    const newTakeHome = (totalIncomeCTC - newSlabTotal);
+    taxableIncomeModel.newTakeHomeYearly = getReadableValue(newTakeHome);
+    taxableIncomeModel.newTakeHomeMonthly = getReadableValue(newTakeHome / 12);
 
     setTaxableIncomeModel(taxableIncomeModel);
 
@@ -294,12 +399,12 @@ function Home() {
             </tr>
             <tr>
               <td>B2</td>
-              <td>50% of Basic Salary (A1)</td>
+              <td>40% of Basic Salary (A1)</td>
               <td className="income-model-td">{getTaxableIncomeModel.fiftyPercentBasic}</td>
             </tr>
             <tr>
               <td>B3</td>
-              <td>Excess of Rent paid (99,600 - 10% of A1)</td>
+              <td>Excess of Rent paid (Actual - 10% of A1)</td>
               <td className="income-model-td">{getTaxableIncomeModel.excessRentPaid}</td>
             </tr>
             <tr>
@@ -312,21 +417,36 @@ function Home() {
             </tr>
             <tr>
               <td>C1</td>
-              <td>User Defined Exemptions</td>
-              <td className="income-model-td">{getTaxableIncomeModel.userDefinedExemption}</td>
+              <td>80 C (1.5 L max)</td>
+              <td className="income-model-td">{getTaxableIncomeModel.exemption80C}</td>
             </tr>
             <tr>
               <td>C2</td>
-              <td>Allowed Extra Exemptions (1,50,000 - A4)</td>
-              <td className="income-model-td">{getTaxableIncomeModel.required80C}</td>
+              <td>80CCD - NPS Contribution from Employee (50 K max)</td>
+              <td className="income-model-td">{getTaxableIncomeModel.exemptionNPS}</td>
             </tr>
             <tr>
               <td>C3</td>
-              <td>Eligible Exemptions</td>
-              <td className="income-model-td">{getTaxableIncomeModel.allowedExemption}</td>
+              <td>Interest Paid on Home Loan (2.0 L max)</td>
+              <td className="income-model-td">{getTaxableIncomeModel.exemptionInterestHome}</td>
             </tr>
             <tr>
               <td>C4</td>
+              <td>80 EEB - Interest Paid on Electric Vehicle Loan (1.5 L max)</td>
+              <td className="income-model-td">{getTaxableIncomeModel.exemptionInterestEV}</td>
+            </tr>
+            <tr>
+              <td>C5</td>
+              <td>80 E - Interest Paid on Education Loan</td>
+              <td className="income-model-td">{getTaxableIncomeModel.exemptionInterestEducation}</td>
+            </tr>
+            <tr>
+              <td>C6</td>
+              <td>Total Exemptions</td>
+              <td className="income-model-td">{getTaxableIncomeModel.totalExemption}</td>
+            </tr>
+            <tr>
+              <td>C7</td>
               <td>Default Standard Deductions</td>
               <td className="income-model-td">{getTaxableIncomeModel.standardDeduction}</td>
             </tr>
@@ -341,7 +461,7 @@ function Home() {
             </tr>
             <tr>
               <td>D2</td>
-              <td>Total Deductions (B4 + C3 + C4)</td>
+              <td>Total Deductions (B4 + C6 + C7)</td>
               <td className="income-model-td">{getTaxableIncomeModel.totalDeductions}</td>
             </tr>
             <tr>
@@ -351,7 +471,7 @@ function Home() {
             </tr>
 
             <tr>
-              <td colSpan="3" className="h2-headed-td"><b>Tax Slabs</b> (Old Tax Regime)</td>
+              <td colSpan="3" className="h2-headed-td"><b>Old Tax Regime</b> for Taxable Income : {getTaxableIncomeModel.taxableIncome} (D3)</td>
             </tr>
             <tr>
               <td>E1</td>
@@ -385,17 +505,65 @@ function Home() {
             </tr>
 
             <tr>
-              <td colSpan="3" className="h2-headed-td"><b>Take Home</b></td>
+              <td colSpan="3" className="h2-headed-td"><b>2023 New Tax Regime</b> for CTC Income : {getTaxableIncomeModel.incomeCTC} (D1)</td>
             </tr>
             <tr>
               <td>F1</td>
+              <td>5% from 3 to 6 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabA}</td>
+            </tr>
+            <tr>
+              <td>F2</td>
+              <td>10% from 6 to 9 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabB}</td>
+            </tr>
+            <tr>
+              <td>F3</td>
+              <td>15% from 9 to 12 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabC}</td>
+            </tr>
+            <tr>
+              <td>F4</td>
+              <td>20% from 12 to 15 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabD}</td>
+            </tr>
+            <tr>
+             <td>F5</td>
+              <td>30% for above 15 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabE}</td>
+            </tr>
+            <tr>
+              <td>F6</td>
+              <td>Total Income Tax (F1 + F2 + F3 + F4 + F5)</td>
+              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTaxSlabTotal}</td>
+            </tr>
+
+            <tr>
+              <td colSpan="3" className="h2-headed-td"><b>Take Home</b> (Old Tax Regime)</td>
+            </tr>
+            <tr>
+              <td>G1</td>
               <td>Take Home - Yearly (D1 - E6)</td>
               <td className="income-model-td">{getTaxableIncomeModel.takeHomeYearly}</td>
             </tr>
             <tr>
-              <td>F2</td>
+              <td>G2</td>
               <td>Take Home - Monthly</td>
               <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.takeHomeMonthly}</td>
+            </tr>
+
+            <tr>
+              <td colSpan="3" className="h2-headed-td"><b>Take Home</b> (New Tax Regime)</td>
+            </tr>
+            <tr>
+              <td>G1</td>
+              <td>Take Home - Yearly (D1 - F6)</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTakeHomeYearly}</td>
+            </tr>
+            <tr>
+              <td>G2</td>
+              <td>Take Home - Monthly</td>
+              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTakeHomeMonthly}</td>
             </tr>
           </tbody>
         </table>
@@ -411,32 +579,53 @@ function Home() {
   } else {
     return (
       <div>
+        <table className = "h2-salary-input-div">
+          <tbody>
+            <tr>
+              <td colSpan="3" className="h2-headed-td"><b>CTC Input</b></td>
+            </tr>
+            <H2SalaryInput name="Basic Salary *" id="h2-base-salary" stateKey="h2baseSalary"/>
+            <H2SalaryInput name="HRA" id="h2-hra-allowance" stateKey="h2Hra"/>
+  
+            <H2SalaryInput name="All Other Allowances (Part-A)" id="h2-other-allowance" stateKey="h2OtherAllowance"/>
+  
+            <H2SalaryInput name="EPF" id="h2-epf" stateKey="h2Epf"/>
+            <H2SalaryInput name="Gratuity" id="h2-gratuity" stateKey="h2Gratuity"/>
+            <H2SalaryInput name="Insurance" id="h2-insurance" stateKey="h2Insurance"/>
+
+            <tr>
+              <td>
+              <label className="h2-input-lbl">Total CTC input</label>
+              </td>
+              <td>
+              <NumberFormat id="h2-total-ctc-inp" className="h2-number-input" value={0} disabled
+                  thousandSeparator={true} thousandsGroupStyle='lakh'/>
+              </td>
+            </tr>
+
+            <tr>
+              <td colSpan="3" className="h2-headed-td"><b>Exemptions Declaration</b></td>
+            </tr>
+            <H2ExemptionInput name="House Rent Paid" id="h2-house-rent-paid" stateKey="h2houseRentPaid"/>
+            <H2ExemptionInput name="Interest Paid on Education Loan" id="h2-loan-interest-education" stateKey="h2LoanInterestEducation"/>
+            <H2ExemptionInput name="Interest Paid on Home Loan (max - 2 L)" id="h2-loan-interest-home" stateKey="h2LoanInterestHome"/>
+            <H2ExemptionInput name="Interest Paid on Electric Vehicle Loan (max - 1.5 L)" id="h2-loan-interest-vehicle" stateKey="h2LoanInterestVehicle"/>
+            <H2ExemptionInput name="NPS Contribution from Employee (max - 50 K)" id="h2-national-pension-scheme" stateKey="h2ExemptionNPS"/>
+            <H2ExemptionInput name="80 C (max - 1.5 L)" id="h2-exemption-80c" stateKey="h2Exemption80C"/>
+
+            <tr>
+              <td>
+              <button className="h2-tax-btn" onClick={loadLocalStorage}>Load Last Input</button>
+              </td>
+              <td>
+              <button className="h2-tax-btn" onClick={calculateTax}>Calculate</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
         <div className = "h2p-center-flex">
           <img src={logo} className="App-logo" alt="logo" />
-        </div>
-
-        <div className = "h2-salary-input-div">
-          <H2CustomInput name="Basic Salary *" id="h2-base-salary" stateKey="h2baseSalary"/>
-          <H2CustomInput name="HRA" id="h2-hra-allowance" stateKey="h2Hra"/>
-  
-          <H2CustomInput name="All Other Allowances (Part-A)" id="h2-other-allowance" stateKey="h2OtherAllowance"/>
-  
-          <H2CustomInput name="EPF" id="h2-epf" stateKey="h2Epf"/>
-          <H2CustomInput name="Gratuity" id="h2-gratuity" stateKey="h2Gratuity"/>
-          <H2CustomInput name="Insurance" id="h2-insurance" stateKey="h2Insurance"/>
-
-          <div className="h2-input-div">
-            <label className="h2-input-lbl">Total CTC input</label>
-            <NumberFormat id="h2-total-ctc-inp" value={0} disabled
-                thousandSeparator={true} thousandsGroupStyle='lakh'/>
-          </div>
-
-          <H2CustomInput name="Total Exemption (PPF, Insurance,..)" id="h2-exemption" stateKey="h2Exemption"/>
-        </div>
-  
-        <div className="h2-button-div">
-            <button className="h2-tax-btn" onClick={calculateTax}>Calculate</button>
-            <button className="h2-tax-btn" onClick={loadLocalStorage}>Load Last Input</button>
         </div>
       </div>
     );
