@@ -34,12 +34,14 @@ export class TaxableIncomeModel {
     taxSlabCess = 0;
     taxSlabToBePaid = 0;
 
-    newTaxSlabA = 0;
-    newTaxSlabB = 0;
-    newTaxSlabC = 0;
-    newTaxSlabD = 0;
-    newTaxSlabE = 0;
-    newTaxSlabTotal = 0;
+    // 2022
+    newTaxSlab2022A = 0;
+    newTaxSlab2022B = 0;
+    newTaxSlab2022C = 0;
+    newTaxSlab2022D = 0;
+    newTaxSlab2022E = 0;
+    newTaxSlab2022F = 0;
+    newTaxSlab2022Total = 0;
 
     takeHomeYearly = 0;
     takeHomeMonthly = 0;

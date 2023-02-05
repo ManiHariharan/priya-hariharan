@@ -16,25 +16,29 @@ const MAX_DEDUCTIONS_80EEB_EV  = 150000; //1.5 L - Interest Paid on Electric Veh
 const MAX_DEDUCTIONS_80CCD_NPS =  50000; //50 K - National Pension Scheme
 const MAX_DEDUCTIONS_HOME_LOAN = 200000; //2.0 L
 
-const SLAB_A_START = 250000; //2,50,000
-const SLAB_B_START = 500000; //5,00,000
+const SLAB_A_START =  250000; //2,50,000
+const SLAB_B_START =  500000; //5,00,000
 const SLAB_C_START = 1000000; //10,00,000
 
 const SLAB_A_TAX = 0.05; //5%
 const SLAB_B_TAX = 0.20; //20%
 const SLAB_C_TAX = 0.30; //30%
 
-const NEW_SLAB_A_START =  300000; // 3 L
-const NEW_SLAB_B_START =  600000; // 6 L
-const NEW_SLAB_C_START =  900000; // 9 L
-const NEW_SLAB_D_START = 1200000; //12 L
-const NEW_SLAB_E_START = 1500000; //15 L
+// 2022
+const NEW_SLAB_2022_A_START =  250000; // 2.5 L
+const NEW_SLAB_2022_B_START =  500000; // 5.0 L
+const NEW_SLAB_2022_C_START =  750000; // 7.5 L
+const NEW_SLAB_2022_D_START = 1000000; //10.0 L
+const NEW_SLAB_2022_E_START = 1250000; //12.5 L
+const NEW_SLAB_2022_F_START = 1500000; //15.0 L
 
-const NEW_SLAB_A_TAX = 0.05; // 5%
-const NEW_SLAB_B_TAX = 0.10; //10%
-const NEW_SLAB_C_TAX = 0.15; //15%
-const NEW_SLAB_D_TAX = 0.20; //20%
-const NEW_SLAB_E_TAX = 0.30; //30%
+// 2022
+const NEW_SLAB_2022_A_TAX = 0.05; // 5%
+const NEW_SLAB_2022_B_TAX = 0.10; //10%
+const NEW_SLAB_2022_C_TAX = 0.15; //15%
+const NEW_SLAB_2022_D_TAX = 0.20; //20%
+const NEW_SLAB_2022_E_TAX = 0.25; //25%
+const NEW_SLAB_2022_F_TAX = 0.30; //30%
 
 const KEY_LOCAL_STORAGE = 'h2-take-home-input';
 
@@ -254,49 +258,70 @@ function Home() {
     taxableIncomeModel.taxSlabCess = getReadableValue(slabCess);
     taxableIncomeModel.taxSlabToBePaid = getReadableValue(slabTaxToBePaid);
 
-    var newSlabA = 0;
-    var newSlabB = 0;
-    var newSlabC = 0;
-    var newSlabD = 0;
-    var newSlabE = 0;
-    console.log('totalIncomeCTC = ' + totalIncomeCTC);
-    if (totalIncomeCTC > NEW_SLAB_A_START) {
-      if (totalIncomeCTC < NEW_SLAB_B_START) {
-        newSlabA = (totalIncomeCTC - NEW_SLAB_A_START) * NEW_SLAB_A_TAX;
-      } else if (totalIncomeCTC < NEW_SLAB_C_START) {
-        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
-        newSlabB = (totalIncomeCTC - NEW_SLAB_B_START) * NEW_SLAB_B_TAX;
-      } else if (totalIncomeCTC < NEW_SLAB_D_START) {
-        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
-        newSlabB = NEW_SLAB_B_START * NEW_SLAB_B_TAX;
-        newSlabC = (totalIncomeCTC - NEW_SLAB_C_START) * NEW_SLAB_C_TAX;
-      } else if (totalIncomeCTC < NEW_SLAB_E_START) {
-        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
-        newSlabB = NEW_SLAB_B_START * NEW_SLAB_B_TAX;
-        newSlabC = NEW_SLAB_C_START * NEW_SLAB_C_TAX;
-        newSlabD = (totalIncomeCTC - NEW_SLAB_D_START) * NEW_SLAB_D_TAX;
+    var newSlab2022A = 0;
+    var newSlab2022B = 0;
+    var newSlab2022C = 0;
+    var newSlab2022D = 0;
+    var newSlab2022E = 0;
+    var newSlab2022F = 0;
+
+    if (totalIncomeCTC > NEW_SLAB_2022_A_START) {
+      if (totalIncomeCTC < NEW_SLAB_2022_B_START) {
+        // Above Rs.2.50 - Rs.5 lakh
+        // 5% of the total income that is more than Rs.2.5 lakh
+        newSlab2022A = (totalIncomeCTC - NEW_SLAB_2022_A_START) * NEW_SLAB_2022_A_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_2022_C_START) {
+        // Above Rs.5 lakh - Rs.7.50 lakh
+        // 10% of the total income that is more than Rs.5 lakh + Rs.12,500
+        newSlab2022A = (NEW_SLAB_2022_B_START - NEW_SLAB_2022_A_START) * NEW_SLAB_2022_A_TAX;
+        newSlab2022B = (totalIncomeCTC - NEW_SLAB_2022_B_START) * NEW_SLAB_2022_B_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_2022_D_START) {
+        // Above Rs.7.50 lakh - Rs.10 lakh
+        // 15% of the total income that is more than Rs.7.5 lakh + Rs.37,500
+        newSlab2022A = (NEW_SLAB_2022_B_START - NEW_SLAB_2022_A_START) * NEW_SLAB_2022_A_TAX;
+        newSlab2022B = (NEW_SLAB_2022_C_START - NEW_SLAB_2022_B_START) * NEW_SLAB_2022_B_TAX;
+        newSlab2022C = (totalIncomeCTC - NEW_SLAB_2022_C_START) * NEW_SLAB_2022_C_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_2022_E_START) {
+        // Above Rs.10 lakh - Rs.12.50 lakh
+        // 20% of the total income that is more than Rs.10 lakh + Rs.75,000
+        newSlab2022A = (NEW_SLAB_2022_B_START - NEW_SLAB_2022_A_START) * NEW_SLAB_2022_A_TAX;
+        newSlab2022B = (NEW_SLAB_2022_C_START - NEW_SLAB_2022_B_START) * NEW_SLAB_2022_B_TAX;
+        newSlab2022C = (NEW_SLAB_2022_D_START - NEW_SLAB_2022_C_START) * NEW_SLAB_2022_C_TAX;
+        newSlab2022D = (totalIncomeCTC - NEW_SLAB_2022_D_START) * NEW_SLAB_2022_D_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_2022_F_START) {
+        // Above Rs.12.50 - Rs.15 lakh
+        // 25% of the total income that is more than Rs.12.5 lakh + Rs.1,25,000
+        newSlab2022A = (NEW_SLAB_2022_B_START - NEW_SLAB_2022_A_START) * NEW_SLAB_2022_A_TAX;
+        newSlab2022B = (NEW_SLAB_2022_C_START - NEW_SLAB_2022_B_START) * NEW_SLAB_2022_B_TAX;
+        newSlab2022C = (NEW_SLAB_2022_D_START - NEW_SLAB_2022_C_START) * NEW_SLAB_2022_C_TAX;
+        newSlab2022D = (NEW_SLAB_2022_E_START - NEW_SLAB_2022_D_START) * NEW_SLAB_2022_D_TAX;
+        newSlab2022E = (totalIncomeCTC - NEW_SLAB_2022_E_START) * NEW_SLAB_2022_E_TAX;
       } else {
-        newSlabA = NEW_SLAB_A_START * NEW_SLAB_A_TAX;
-        newSlabB = NEW_SLAB_B_START * NEW_SLAB_B_TAX;
-        newSlabC = NEW_SLAB_C_START * NEW_SLAB_C_TAX;
-        newSlabD = NEW_SLAB_D_START * NEW_SLAB_D_TAX;
-        newSlabE = (totalIncomeCTC - NEW_SLAB_E_START) * NEW_SLAB_E_TAX;
+        // Above Rs.15 lakh
+        // 30% of the total income that is more than Rs.15 lakh + Rs.1,87,500
+        newSlab2022A = (NEW_SLAB_2022_B_START - NEW_SLAB_2022_A_START) * NEW_SLAB_2022_A_TAX;
+        newSlab2022B = (NEW_SLAB_2022_C_START - NEW_SLAB_2022_B_START) * NEW_SLAB_2022_B_TAX;
+        newSlab2022C = (NEW_SLAB_2022_D_START - NEW_SLAB_2022_C_START) * NEW_SLAB_2022_C_TAX;
+        newSlab2022D = (NEW_SLAB_2022_E_START - NEW_SLAB_2022_D_START) * NEW_SLAB_2022_D_TAX;
+        newSlab2022E = (NEW_SLAB_2022_F_START - NEW_SLAB_2022_E_START) * NEW_SLAB_2022_E_TAX;
+        newSlab2022F = (totalIncomeCTC - NEW_SLAB_2022_F_START) * NEW_SLAB_2022_F_TAX;
       }
     }
-    const newSlabTotal = newSlabA + newSlabB + newSlabC + newSlabD + newSlabE;
+    const newSlab2022Total = newSlab2022A + newSlab2022B + newSlab2022C + newSlab2022D + newSlab2022E + newSlab2022F;
 
-    taxableIncomeModel.newTaxSlabA = getReadableValue(newSlabA);
-    taxableIncomeModel.newTaxSlabB = getReadableValue(newSlabB);
-    taxableIncomeModel.newTaxSlabC = getReadableValue(newSlabC);
-    taxableIncomeModel.newTaxSlabD = getReadableValue(newSlabD);
-    taxableIncomeModel.newTaxSlabE = getReadableValue(newSlabE);
-    taxableIncomeModel.newTaxSlabTotal = getReadableValue(newSlabTotal);
+    taxableIncomeModel.newTaxSlab2022A = getReadableValue(newSlab2022A);
+    taxableIncomeModel.newTaxSlab2022B = getReadableValue(newSlab2022B);
+    taxableIncomeModel.newTaxSlab2022C = getReadableValue(newSlab2022C);
+    taxableIncomeModel.newTaxSlab2022D = getReadableValue(newSlab2022D);
+    taxableIncomeModel.newTaxSlab2022E = getReadableValue(newSlab2022E);
+    taxableIncomeModel.newTaxSlab2022F = getReadableValue(newSlab2022F);
+    taxableIncomeModel.newTaxSlab2022Total = getReadableValue(newSlab2022Total);
 
     const takeHome = (totalIncomeCTC - slabTaxToBePaid);
     taxableIncomeModel.takeHomeYearly = getReadableValue(takeHome);
     taxableIncomeModel.takeHomeMonthly = getReadableValue(takeHome / 12);
 
-    const newTakeHome = (totalIncomeCTC - newSlabTotal);
+    const newTakeHome = (totalIncomeCTC - newSlab2022Total);
     taxableIncomeModel.newTakeHomeYearly = getReadableValue(newTakeHome);
     taxableIncomeModel.newTakeHomeMonthly = getReadableValue(newTakeHome / 12);
 
@@ -505,64 +530,55 @@ function Home() {
             </tr>
 
             <tr>
-              <td colSpan="3" className="h2-headed-td"><b>2023 New Tax Regime</b> for CTC Income : {getTaxableIncomeModel.incomeCTC} (D1)</td>
+              <td colSpan="3" className="h2-headed-td"><b>2022-23 New Tax Regime</b> for CTC Income : {getTaxableIncomeModel.incomeCTC} (D1)</td>
             </tr>
             <tr>
               <td>F1</td>
-              <td>5% from 3 to 6 lakhs</td>
-              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabA}</td>
+              <td>5% from 2.5 to 5 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2022A}</td>
             </tr>
             <tr>
               <td>F2</td>
-              <td>10% from 6 to 9 lakhs</td>
-              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabB}</td>
+              <td>10% from 5 to 7.5 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2022B}</td>
             </tr>
             <tr>
               <td>F3</td>
-              <td>15% from 9 to 12 lakhs</td>
-              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabC}</td>
+              <td>15% from 7.5 to 10 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2022C}</td>
             </tr>
             <tr>
               <td>F4</td>
-              <td>20% from 12 to 15 lakhs</td>
-              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabD}</td>
+              <td>20% from 10 to 12.5 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2022D}</td>
             </tr>
             <tr>
              <td>F5</td>
+              <td>25% from 12.5 to 15 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2022E}</td>
+            </tr>
+            <tr>
+             <td>F6</td>
               <td>30% for above 15 lakhs</td>
-              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlabE}</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2022F}</td>
             </tr>
             <tr>
-              <td>F6</td>
+              <td>F7</td>
               <td>Total Income Tax (F1 + F2 + F3 + F4 + F5)</td>
-              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTaxSlabTotal}</td>
+              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTaxSlab2022Total}</td>
             </tr>
 
             <tr>
-              <td colSpan="3" className="h2-headed-td"><b>Take Home</b> (Old Tax Regime)</td>
+              <td colSpan="3" className="h2-headed-td"><b>Monthly Take Home</b></td>
             </tr>
             <tr>
-              <td>G1</td>
-              <td>Take Home - Yearly (D1 - E6)</td>
-              <td className="income-model-td">{getTaxableIncomeModel.takeHomeYearly}</td>
+              <td>H1</td>
+              <td>Old Tax Regime (D1 - E6) = {getTaxableIncomeModel.takeHomeYearly}</td>
+              <td className="income-model-td">{getTaxableIncomeModel.takeHomeMonthly}</td>
             </tr>
             <tr>
-              <td>G2</td>
-              <td>Take Home - Monthly</td>
-              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.takeHomeMonthly}</td>
-            </tr>
-
-            <tr>
-              <td colSpan="3" className="h2-headed-td"><b>Take Home</b> (New Tax Regime)</td>
-            </tr>
-            <tr>
-              <td>G1</td>
-              <td>Take Home - Yearly (D1 - F6)</td>
-              <td className="income-model-td">{getTaxableIncomeModel.newTakeHomeYearly}</td>
-            </tr>
-            <tr>
-              <td>G2</td>
-              <td>Take Home - Monthly</td>
+              <td>H2</td>
+              <td>2022-23 New Tax Regime (D1 - F7) = {getTaxableIncomeModel.newTakeHomeYearly}</td>
               <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTakeHomeMonthly}</td>
             </tr>
           </tbody>
