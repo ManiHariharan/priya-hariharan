@@ -8,7 +8,6 @@ import NumberFormat from 'react-number-format';
 
 import "../App.css"
 
-// const RENT_PAID = 99600; //99,600
 const STANDARD_DEDUCTIONS = 50000; //50,000
 const MAX_DEDUCTIONS_80C = 150000; //1,50,000
 
@@ -39,6 +38,20 @@ const NEW_SLAB_2022_C_TAX = 0.15; //15%
 const NEW_SLAB_2022_D_TAX = 0.20; //20%
 const NEW_SLAB_2022_E_TAX = 0.25; //25%
 const NEW_SLAB_2022_F_TAX = 0.30; //30%
+
+// 2023
+const NEW_SLAB_2023_A_START =  300000; // 3 L
+const NEW_SLAB_2023_B_START =  600000; // 6 L
+const NEW_SLAB_2023_C_START =  900000; // 9 L
+const NEW_SLAB_2023_D_START = 1200000; //12 L
+const NEW_SLAB_2023_E_START = 1500000; //15 L
+
+// 2023
+const NEW_SLAB_2023_A_TAX = 0.05; // 5%
+const NEW_SLAB_2023_B_TAX = 0.10; //10%
+const NEW_SLAB_2023_C_TAX = 0.15; //15%
+const NEW_SLAB_2023_D_TAX = 0.20; //20%
+const NEW_SLAB_2023_E_TAX = 0.30; //30%
 
 const KEY_LOCAL_STORAGE = 'h2-take-home-input';
 
@@ -258,6 +271,10 @@ function Home() {
     taxableIncomeModel.taxSlabCess = getReadableValue(slabCess);
     taxableIncomeModel.taxSlabToBePaid = getReadableValue(slabTaxToBePaid);
 
+    const takeHome = (totalIncomeCTC - slabTaxToBePaid);
+    taxableIncomeModel.takeHomeYearly = getReadableValue(takeHome);
+    taxableIncomeModel.takeHomeMonthly = getReadableValue(takeHome / 12);
+
     var newSlab2022A = 0;
     var newSlab2022B = 0;
     var newSlab2022C = 0;
@@ -317,13 +334,62 @@ function Home() {
     taxableIncomeModel.newTaxSlab2022F = getReadableValue(newSlab2022F);
     taxableIncomeModel.newTaxSlab2022Total = getReadableValue(newSlab2022Total);
 
-    const takeHome = (totalIncomeCTC - slabTaxToBePaid);
-    taxableIncomeModel.takeHomeYearly = getReadableValue(takeHome);
-    taxableIncomeModel.takeHomeMonthly = getReadableValue(takeHome / 12);
-
     const newTakeHome = (totalIncomeCTC - newSlab2022Total);
-    taxableIncomeModel.newTakeHomeYearly = getReadableValue(newTakeHome);
-    taxableIncomeModel.newTakeHomeMonthly = getReadableValue(newTakeHome / 12);
+    taxableIncomeModel.newTakeHome2022Yearly = getReadableValue(newTakeHome);
+    taxableIncomeModel.newTakeHome2022Monthly = getReadableValue(newTakeHome / 12);
+
+
+    var newSlab2023A = 0;
+    var newSlab2023B = 0;
+    var newSlab2023C = 0;
+    var newSlab2023D = 0;
+    var newSlab2023E = 0;
+
+    if (totalIncomeCTC > NEW_SLAB_2023_A_START) {
+      if (totalIncomeCTC < NEW_SLAB_2023_B_START) {
+        // Above Rs.3 lakh - Rs.6 lakh
+        // 5% of the total income
+        newSlab2023A = (totalIncomeCTC - NEW_SLAB_2023_A_START) * NEW_SLAB_2023_A_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_2023_C_START) {
+        // Above Rs.6 lakh - Rs.9 lakh 
+        // 10% of the total income
+        newSlab2023A = (NEW_SLAB_2023_B_START - NEW_SLAB_2023_A_START) * NEW_SLAB_2023_A_TAX;
+        newSlab2023B = (totalIncomeCTC - NEW_SLAB_2023_B_START) * NEW_SLAB_2023_B_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_2023_D_START) {
+        // Above Rs.9 lakh - Rs.12 lakh 
+        // 15% of the total income
+        newSlab2023A = (NEW_SLAB_2023_B_START - NEW_SLAB_2023_A_START) * NEW_SLAB_2023_A_TAX;
+        newSlab2023B = (NEW_SLAB_2023_C_START - NEW_SLAB_2023_B_START) * NEW_SLAB_2023_B_TAX;
+        newSlab2023C = (totalIncomeCTC - NEW_SLAB_2023_C_START) * NEW_SLAB_2023_C_TAX;
+      } else if (totalIncomeCTC < NEW_SLAB_2023_E_START) {
+        // Above Rs.12 lakh - Rs.15 lakh
+        // 20% of the total income
+        newSlab2023A = (NEW_SLAB_2023_B_START - NEW_SLAB_2023_A_START) * NEW_SLAB_2023_A_TAX;
+        newSlab2023B = (NEW_SLAB_2023_C_START - NEW_SLAB_2023_B_START) * NEW_SLAB_2023_B_TAX;
+        newSlab2023C = (NEW_SLAB_2023_D_START - NEW_SLAB_2023_C_START) * NEW_SLAB_2023_C_TAX;
+        newSlab2023D = (totalIncomeCTC - NEW_SLAB_2023_D_START) * NEW_SLAB_2023_D_TAX;
+      } else {
+        // Above Rs.15 lakh
+        // 30% of the total income
+        newSlab2023A = (NEW_SLAB_2023_B_START - NEW_SLAB_2023_A_START) * NEW_SLAB_2023_A_TAX;
+        newSlab2023B = (NEW_SLAB_2023_C_START - NEW_SLAB_2023_B_START) * NEW_SLAB_2023_B_TAX;
+        newSlab2023C = (NEW_SLAB_2023_D_START - NEW_SLAB_2023_C_START) * NEW_SLAB_2023_C_TAX;
+        newSlab2023D = (NEW_SLAB_2023_E_START - NEW_SLAB_2023_D_START) * NEW_SLAB_2023_D_TAX;
+        newSlab2023E = (totalIncomeCTC - NEW_SLAB_2023_E_START) * NEW_SLAB_2023_E_TAX;
+      }
+    }
+    const newSlab2023Total = newSlab2023A + newSlab2023B + newSlab2023C + newSlab2023D + newSlab2023E;
+
+    taxableIncomeModel.newTaxSlab2023A = getReadableValue(newSlab2023A);
+    taxableIncomeModel.newTaxSlab2023B = getReadableValue(newSlab2023B);
+    taxableIncomeModel.newTaxSlab2023C = getReadableValue(newSlab2023C);
+    taxableIncomeModel.newTaxSlab2023D = getReadableValue(newSlab2023D);
+    taxableIncomeModel.newTaxSlab2023E = getReadableValue(newSlab2023E);
+    taxableIncomeModel.newTaxSlab2023Total = getReadableValue(newSlab2023Total);
+
+    const newTakeHome2023 = (totalIncomeCTC - newSlab2023Total);
+    taxableIncomeModel.newTakeHome2023Yearly = getReadableValue(newTakeHome2023);
+    taxableIncomeModel.newTakeHome2023Monthly = getReadableValue(newTakeHome2023 / 12);
 
     setTaxableIncomeModel(taxableIncomeModel);
 
@@ -564,8 +630,42 @@ function Home() {
             </tr>
             <tr>
               <td>F7</td>
-              <td>Total Income Tax (F1 + F2 + F3 + F4 + F5)</td>
+              <td>Total Income Tax (F1 + F2 + F3 + F4 + F5 + F6)</td>
               <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTaxSlab2022Total}</td>
+            </tr>
+
+            <tr>
+              <td colSpan="3" className="h2-headed-td"><b>2023-24 New Tax Regime</b> for CTC Income : {getTaxableIncomeModel.incomeCTC} (D1)</td>
+            </tr>
+            <tr>
+              <td>G1</td>
+              <td>5% from 3 to 6 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2023A}</td>
+            </tr>
+            <tr>
+              <td>G2</td>
+              <td>10% from 6 to 9 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2023B}</td>
+            </tr>
+            <tr>
+              <td>G3</td>
+              <td>15% from 9 to 12 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2023C}</td>
+            </tr>
+            <tr>
+              <td>G4</td>
+              <td>20% from 12 to 15 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2023D}</td>
+            </tr>
+            <tr>
+             <td>G5</td>
+              <td>30% for above 15 lakhs</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTaxSlab2023E}</td>
+            </tr>
+            <tr>
+              <td>G6</td>
+              <td>Total Income Tax (G1 + G2 + G3 + G4 + G5)</td>
+              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTaxSlab2023Total}</td>
             </tr>
 
             <tr>
@@ -574,12 +674,17 @@ function Home() {
             <tr>
               <td>H1</td>
               <td>Old Tax Regime (D1 - E6) = {getTaxableIncomeModel.takeHomeYearly}</td>
-              <td className="income-model-td">{getTaxableIncomeModel.takeHomeMonthly}</td>
+              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.takeHomeMonthly}</td>
             </tr>
             <tr>
               <td>H2</td>
-              <td>2022-23 New Tax Regime (D1 - F7) = {getTaxableIncomeModel.newTakeHomeYearly}</td>
-              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTakeHomeMonthly}</td>
+              <td>2022-23 New Tax Regime (D1 - F7) = {getTaxableIncomeModel.newTakeHome2022Yearly}</td>
+              <td className="income-model-td">{getTaxableIncomeModel.newTakeHome2022Monthly}</td>
+            </tr>
+            <tr>
+              <td>H3</td>
+              <td>2023-24 New Tax Regime (D1 - G6) = {getTaxableIncomeModel.newTakeHome2023Yearly}</td>
+              <td className="income-model-td h2-bgcolor-td">{getTaxableIncomeModel.newTakeHome2023Monthly}</td>
             </tr>
           </tbody>
         </table>

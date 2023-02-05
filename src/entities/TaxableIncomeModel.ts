@@ -34,6 +34,9 @@ export class TaxableIncomeModel {
     taxSlabCess = 0;
     taxSlabToBePaid = 0;
 
+    takeHomeYearly = 0;
+    takeHomeMonthly = 0;
+
     // 2022
     newTaxSlab2022A = 0;
     newTaxSlab2022B = 0;
@@ -43,9 +46,18 @@ export class TaxableIncomeModel {
     newTaxSlab2022F = 0;
     newTaxSlab2022Total = 0;
 
-    takeHomeYearly = 0;
-    takeHomeMonthly = 0;
+    newTakeHome2022Yearly = 0;
+    newTakeHome2022Monthly = 0;
 
-    newTakeHomeYearly = 0;
-    newTakeHomeMonthly = 0;
+    // 2023
+    newTaxSlab2023A = 0;
+    newTaxSlab2023B = 0;
+    newTaxSlab2023C = 0;
+    newTaxSlab2023D = 0;
+    newTaxSlab2023E = 0;
+    newTaxSlab2023Total = 0;
+
+    newTakeHome2023Yearly = 0;
+    newTakeHome2023Monthly = 0;
+    
   }
